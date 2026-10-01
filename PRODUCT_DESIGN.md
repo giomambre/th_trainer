@@ -1,111 +1,118 @@
-# Portale di allenamento al poker — Design document
+# Portale di allenamento al poker — Product design document
 
-**Versione:** bozza 0.1  
-**Stato:** base di discussione, da rivedere con i due fondatori  
-**Data:** 30 settembre 2026
+- **Versione:** bozza 0.2
+- **Stato:** proposta da discutere con i due fondatori
+- **Data:** 30 settembre 2026
 
-## 1. Visione
+## 1. Scopo e posizionamento
 
-Creare un portale gratuito in cui chi conosce già le regole del Texas Hold’em No Limit possa migliorare giocando partite cash game complete contro bot. L’esperienza deve assomigliare a una vera sessione di poker, ma aiutare il giocatore a capire le proprie decisioni e il comportamento degli avversari.
+Il prodotto è un portale gratuito per chi conosce già le regole del Texas Hold’em No Limit e vuole migliorare giocando sessioni cash game contro bot. Deve offrire il ritmo e la continuità di una partita reale, con strumenti di analisi che aiutino a interpretare le decisioni senza appesantire il tavolo.
 
-La porta d’ingresso è semplice: si sceglie il tavolo, si impostano i bot, si decide se ricevere assistenza e si inizia a giocare. Le spiegazioni e le statistiche devono essere utili senza trasformare il tavolo in una schermata tecnica difficile da leggere.
+Si usano solo fiches e importi virtuali, privi di valore monetario. Non sono previsti depositi, prelievi, premi in denaro o partite con soldi reali. Il prodotto non è un corso introduttivo alle regole.
 
-Il portale usa esclusivamente fiches e importi **virtuali**, privi di valore monetario. Non prevede depositi, prelievi, premi in denaro o gioco con soldi reali.
+L’obiettivo formativo è distinguere la qualità di una decisione dal risultato della singola mano: una scelta ragionevole può perdere, e una scelta debole può vincere.
 
-## 2. Destinatari e obiettivo
+## 2. Percorso del giocatore
 
-Il prodotto si rivolge a giocatori di livelli diversi che conoscono almeno le regole di base e vogliono migliorare con la pratica. Non nasce come corso introduttivo alle regole del poker.
+### Configurazione della sessione
 
-L’obiettivo è permettere al giocatore di:
+Il giocatore sceglie il numero di posti, da 2 a 6 nella visione completa, il livello generale di difficoltà e lo stile della partita. Può poi modificare livello e stile di ogni bot. Il tavolo mostra le caratteristiche impostate in modo riconoscibile, senza suggerire che lo stile determini ogni singola azione.
 
-- prendere decisioni in una partita completa, dal preflop allo showdown;
-- riconoscere stili e cambiamenti nel comportamento degli avversari;
-- rivedere le mani e capire le decisioni importanti;
-- osservare i propri progressi e gli errori ricorrenti nel tempo.
+La prima esperienza usa una sola configurazione di bui e stack virtuali. Importi, ricarica dello stack e numero di posti effettivamente disponibili nella prima versione restano decisioni aperte.
 
-Il prodotto non deve confondere il risultato economico di una singola mano con la qualità della decisione presa.
+Prima di iniziare, il giocatore seleziona una modalità:
 
-## 3. Esperienza principale
+- **Non assistita:** nessun suggerimento strategico durante la mano; analisi disponibile a mano conclusa.
+- **Assistita:** durante la mano sono disponibili spiegazioni contestuali su regole, dimensioni delle puntate e comportamenti osservati. Le ipotesi strategiche sono dichiarate come tali.
 
-### Prima della partita
+La modalità scelta deve restare visibile e modificabile tra una mano e la successiva. Il comportamento del sistema in caso di modifica durante una mano va definito prima dell’implementazione.
 
-Il giocatore avvia una sessione cash game e sceglie un tavolo da **2 a 6 posti** nella visione completa del prodotto. Può impostare un livello generale di difficoltà e uno stile generale della partita. Può inoltre personalizzare livello e stile dei singoli bot. Le caratteristiche del tavolo e di ciascun bot devono restare chiaramente riconoscibili durante il gioco.
+### Mano in corso
 
-Non sono previste molte fasce di puntata: l’esperienza iniziale presenta **una sola configurazione intuitiva di bui e stack virtuali**. Gli importi esatti saranno definiti in una revisione successiva.
+Il tavolo deve rendere leggibili carte personali e comuni, posizione, stack, piatto, bui, puntata da chiamare, giocatore di turno e azioni disponibili. Per le puntate variabili deve mostrare l’intervallo consentito dalle regole e l’importo che verrà impegnato prima della conferma.
 
-Il giocatore sceglie una delle due modalità:
+Il motore di gioco gestisce distribuzione, ordine di azione, round di puntata, fold, check, call, bet, raise, all-in, showdown, piatti secondari e divisione dei piatti. Deve impedire azioni illegali e conservare una sequenza ordinata degli eventi della mano. Il supporto a tavoli con più di due posti richiede in particolare la corretta gestione di turni, all-in e side pot.
 
-- **Partita non assistita:** prende le decisioni senza suggerimenti durante la mano e riceve un riepilogo al termine.
-- **Partita assistita:** durante la mano può leggere spiegazioni sui comportamenti osservati nei bot e sul contesto delle decisioni. Il supporto deve distinguere osservazioni, ipotesi e fatti certi.
+I bot prendono decisioni usando solo informazioni che un avversario al tavolo potrebbe conoscere: carte proprie, carte comuni, azioni pubbliche, stack e storico osservabile. Non accedono alle carte coperte del giocatore né a dati futuri. Possono adattarsi a tendenze rilevate nel tempo; la finestra di osservazione e l’effetto concreto di livello e stile restano da definire e testare.
 
-### Durante la partita
+Le modifiche alla configurazione dei bot durante la sessione devono avere un momento di applicazione esplicito nell’interfaccia. **Proposta tecnica:** applicarle dalla mano successiva, così una mano già avviata mantiene condizioni coerenti.
 
-Il tavolo mostra subito le informazioni necessarie per decidere: carte personali, carte comuni, posizione, stack, piatto, bui, puntata corrente, azioni disponibili e turno di gioco. Le azioni non consentite dalle regole non devono apparire come scelte valide.
+### Fine mano e revisione
 
-La partita segue le regole del Texas Hold’em No Limit, comprese le situazioni di all-in, i piatti secondari e la divisione del piatto quando necessaria. Il ritmo deve favorire il gioco: animazioni e spiegazioni non devono rallentare inutilmente ogni mano.
+Al termine si mostrano esito, vincitori, variazioni degli stack e cronologia delle azioni. L’analisi evidenzia poche decisioni rilevanti e spiega quali informazioni erano disponibili al momento della scelta. Può indicare alternative plausibili, ma non deduce la qualità della scelta dalle carte rivelate dopo. (usare anche GTO ma scelte giuste si intende anche giusta in base alle giocate del player precendente sapecndo che non tutti giocano GTO)
 
-I bot hanno livelli di difficoltà e stili distinguibili. Adattano le proprie decisioni ai comportamenti osservati nel giocatore, senza conoscere le sue carte nascoste. Il giocatore può modificare le impostazioni generali e quelle di un singolo bot anche durante una sessione. Resta da definire se un cambiamento effettuato a mano iniziata avrà effetto subito o dalla mano successiva.
+È previsto un solo livello di approfondimento, comprensibile senza strumenti avanzati di studio del poker. Una valutazione strategica deve dichiarare almeno le ipotesi da cui dipende; se il sistema non dispone di una base sufficiente, deve evitare un giudizio netto.
 
-### Dopo la mano
+## 3. Assistenza e analisi
 
-Alla conclusione della mano il giocatore vede l’esito, può rivedere le azioni principali e riceve un’analisi comprensibile delle proprie decisioni. È previsto **un solo livello di approfondimento**: abbastanza informativo per imparare, ma leggibile senza richiedere conoscenze avanzate di software per il poker.
+Le spiegazioni distinguono quattro categorie:
 
-Le spiegazioni devono evitare giudizi fondati soltanto sulle carte emerse dopo la decisione. Dove il sistema propone una lettura dell’avversario o una linea strategica, deve rendere chiaro che si tratta di una valutazione basata sulle informazioni disponibili e su determinate ipotesi, non di una verità universale.
+1. **Regola:** conseguenza certa delle regole del gioco.
+2. **Calcolo:** dato verificabile, per esempio importo da chiamare o dimensione del piatto.
+3. **Osservazione:** frequenza o sequenza di azioni effettivamente registrate.
+4. **Interpretazione:** possibile lettura dello stile avversario o della scelta strategica, con incertezza esplicita.
 
-## 4. Progressi del giocatore
+Durante la mano, assistenza e bot devono rispettare la stessa separazione tra informazioni pubbliche e nascoste. L’assistenza non rivela carte ignote al giocatore né usa lo showdown futuro per suggerimenti retrospettivi presentati come disponibili in tempo reale.
 
-Il portale conserva la cronologia delle mani e mostra i progressi nel tempo. La visione comprende almeno:
+Per giudicare le decisioni non basta il risultato in fiches. Prima di introdurre voti, punteggi o etichette come “errore”, occorre definire un criterio riproducibile e spiegabile. Nella prima versione sono preferibili osservazioni motivate e alternative contestuali a un punteggio numerico privo di metodo validato.
 
-- numero di mani e sessioni giocate;
-- risultati in fiches virtuali, separati dalla valutazione delle decisioni;
-- decisioni e situazioni da rivedere;
-- andamento nel tempo;
-- punti forti e difficoltà ricorrenti;
-- risultati contro diversi livelli e stili di bot.
+## 4. Cronologia e progressi
 
-La schermata iniziale dei progressi deve evidenziare pochi dati utili; il resto può essere consultato nei dettagli. I criteri con cui si giudica una decisione dovranno essere spiegabili al giocatore.
+Il portale conserva sessioni e mani, così il giocatore può ritrovarle dopo aver chiuso e riaperto l’applicazione. Per ogni mano servono almeno configurazione del tavolo, giocatori e stack iniziali, eventi in ordine, carte mostrate allo showdown, esito e dati necessari a ricostruire il riepilogo. La scelta di cosa conservare delle carte non mostrate va definita insieme al modello di accesso ai dati.
 
-## 5. Stile e accessibilità
+La schermata dei progressi mostra inizialmente pochi indicatori: mani e sessioni giocate, andamento delle fiches virtuali e situazioni contrassegnate per revisione. I risultati economici restano separati dalle valutazioni delle decisioni. I dettagli possono includere andamento nel tempo, ricorrenze e risultati contro livelli o stili di bot, purché sia chiaro quando il campione è troppo piccolo per trarre conclusioni.
 
-Il riferimento di atmosfera è GTO Wizard: un ambiente contemporaneo dedicato allo studio del poker. Il portale deve però risultare **più immediato e meno tecnico**. Il tavolo e le azioni hanno priorità visiva; analisi e statistiche compaiono quando servono, senza occupare continuamente lo spazio di gioco.
+## 5. Interfaccia e accessibilità
 
-Il linguaggio dell’interfaccia è italiano. Carte, puntate, turni e stati dei bot devono essere riconoscibili anche senza affidarsi soltanto al colore. Testi e controlli devono restare leggibili su un normale laptop.
+L’atmosfera di riferimento è quella di un moderno strumento di studio del poker, come GTO Wizard, con un’interfaccia più immediata. Il progetto deve avere identità visiva propria. Tavolo e controlli di gioco hanno priorità; analisi e statistiche compaiono su richiesta o nei momenti di revisione.
 
-Il design deve avere una propria identità; il riferimento a GTO Wizard serve a orientare lo stile, non a copiarne marchio o schermate.
+La lingua dell’interfaccia è l’italiano (ma i nomi dei posti , flop river check tutto in inglese). Stato del turno, azioni, importi e caratteristiche dei bot devono essere distinguibili anche senza basarsi solo sul colore. Testi e controlli devono restare leggibili su un laptop comune. Le animazioni non devono ritardare le decisioni o impedire di consultare le informazioni essenziali.
 
-## 6. Confini del prodotto
+## 6. Ambito della prima versione
 
-**Al centro della prima versione:** partite cash game complete contro bot, scelta tra modalità assistita e non assistita, configurazione dei bot, riepilogo delle mani e primi progressi personali.
+La prima versione giocabile comprende: avvio di una sessione cash game, almeno un tavolo heads-up, bot configurabili, entrambe le modalità di assistenza, mani complete secondo le regole, riepilogo e cronologia persistente. L’architettura del motore di gioco deve consentire l’estensione fino a sei posti senza cambiare il modello delle regole.
 
-**Possibili sviluppi successivi:** esercizi su situazioni specifiche, percorsi di allenamento, analisi strategiche più avanzate e pubblicazione online. Queste idee non devono complicare l’avvio della prima esperienza di gioco.
+Esercizi su situazioni specifiche, percorsi guidati e analisi strategiche avanzate sono possibili sviluppi successivi. Tornei, altre varianti, multiplayer tra persone e gioco con denaro reale sono fuori dall’ambito attuale. La pubblicazione online verrà valutata dopo la validazione dell’esperienza locale.
 
-**Fuori dall’ambito attuale:** tornei, altre varianti del poker, partite con denaro reale e funzionalità social o multiplayer tra persone. Un’eventuale versione online verrà progettata quando il prodotto locale sarà convincente.
+## 7. Criteri di validazione
 
-## 7. Principi per le spiegazioni strategiche
+La prima esperienza è pronta per una prova con utenti quando un giocatore può configurare il tavolo, completare più mani senza interrompersi per errori di regole, distinguere le due modalità, consultare il riepilogo e ritrovare le mani dopo il riavvio.
 
-1. Separare regole certe, calcoli verificabili, osservazioni del comportamento dei bot e ipotesi strategiche.
-2. Durante una mano, l’assistenza non deve conoscere né rivelare carte che il giocatore non può vedere.
-3. Una decisione non va giudicata solo dal risultato finale della mano.
-4. Evitare etichette come “mossa perfetta” o “errore certo” quando esistono più linee ragionevoli.
-5. Privilegiare spiegazioni utili per la mano successiva rispetto a grandi quantità di numeri.
+Prima di ampliare le funzioni, vanno verificati almeno tre aspetti:
 
-## 8. Prima esperienza da validare
+- **Correttezza:** ordine delle azioni, importi, all-in, showdown e assegnazione dei piatti producono esiti coerenti, inclusi i casi limite pertinenti al numero di posti supportato.
+- **Comprensibilità:** un giocatore che conosce le regole capisce di chi è il turno, quanto costa continuare e perché un’azione è disponibile o esclusa.
+- **Utilità formativa:** le spiegazioni aiutano a rivedere una decisione senza presentare ipotesi come certezze o confondere vincita e qualità della scelta.
 
-La prima esperienza giocabile è riuscita se un utente può aprire il portale, configurare una partita, giocare mani complete contro bot, distinguere chiaramente le due modalità di assistenza, leggere il riepilogo di una mano e ritrovare la propria cronologia dopo aver chiuso e riaperto il portale.
+## 8. Decisioni aperte
 
-La versione iniziale può partire da un tavolo a due posti, purché il percorso verso tavoli fino a sei posti resti parte esplicita del prodotto. Prima di ampliare le funzioni, bisogna verificare che la partita sia corretta, comprensibile e piacevole da giocare.
+Prima di fissare schermate e criteri di analisi occorre decidere:
 
-## 9. Decisioni ancora aperte
+- bui, stack iniziale e regole di ricarica delle fiches virtuali;
+- numero di posti della prima versione oltre al minimo heads-up;
+- significato operativo dei livelli e degli stili dei bot, e come misurarne la differenza;
+- durata della memoria dei bot e dati osservabili che alimentano l’adattamento;
+- applicazione delle modifiche a bot e modalità quando una mano è in corso;
+- contenuto preciso dell’assistenza durante la mano e del riepilogo finale;
+- metodo per selezionare le decisioni da rivedere e, in futuro, valutarle;
+- indicatori prioritari nella pagina dei progressi.
 
-Questi punti non bloccano la visione di base, ma andranno definiti prima di rifinire le relative schermate o analisi:
+Le decisioni prese vanno riportate qui con il loro effetto sull’esperienza e sui criteri di validazione.
 
-- configurazione precisa dei bui, dello stack e dell’eventuale ricarica di fiches virtuali;
-- numero di posti disponibile nella prima esperienza giocabile;
-- significato concreto dei livelli e degli stili dei bot;
-- durata della memoria con cui i bot si adattano al giocatore;
-- momento in cui diventano effettive le modifiche ai bot durante una mano;
-- contenuto esatto dell’assistenza durante la mano e del riepilogo finale;
-- priorità dei dati da mostrare nella schermata dei progressi;
-- ruolo futuro degli esercizi separati dalle partite complete.
+## 9. Iterazione tecnica del 1 ottobre 2026
 
-Questo documento va aggiornato quando viene presa una decisione sul prodotto, mantenendo visibile ciò che è già deciso e ciò che resta aperto.
+Il primo motore implementa mani heads-up con bui 1/2 fiches e stack di 200
+fiches, pari a 100 BB. Gli importi ammessi sono multipli di una fiche, quindi
+0,5 BB. Le puntate possono assumere qualsiasi importo legale in questa unità;
+non sono limitate a sizing predefiniti. Il raise indica il totale sulla street.
+
+L'iterazione comprende turni, round di puntata, all-in, showdown, split pot,
+restituzione delle fiches non chiamate, cronologia e ripristino locale della
+mano. Ogni nuova mano riparte da 100 BB e alterna il dealer: la continuità
+degli stack tra mani resta da implementare. I tavoli multiway e i side pot
+non sono ancora disponibili.
+
+L'avversario attuale è esclusivamente un bot di collaudo check/call.
+Modellazione realistica di stile e abilità, adattamento e analisi GTO ed
+exploitative restano requisiti centrali da implementare e validare. La
+politica di collaudo non viene usata per giudicare decisioni del giocatore.

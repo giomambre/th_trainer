@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.pytest_tmp*/
+*.py[cod]
+*.egg-info/
+frontend/node_modules/
+frontend/dist/
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
